@@ -36,6 +36,7 @@ import Bright from '../assets/hdri/Bright.png'
 import { Euler, Vector3 } from 'three'
 import { GeometryType } from '@speckle/viewer'
 import { MeshBatch } from '@speckle/viewer'
+import { createViewer, getStream } from './main'
 
 export default class Sandbox {
   private viewer: Viewer
@@ -368,22 +369,80 @@ export default class Sandbox {
       title: 'Load PointCloud'
     })
     loadPcButton.on('click', () => {
+      const lazArray=[
+      {name:"CA13",url:"http://5.9.65.151/mschuetz/potree/resources/pointclouds/opentopography/CA13_1.4/cloud.js",viewParams:[[694517.403, 3899262.595, 10642.698],[694878.410, 3916332.067, 14.497]]},
+      {name:"Heidentor",url:"http://5.9.65.151/mschuetz/potree/resources/pointclouds/archpro/heidentor/cloud.js",viewParams:[[13.856, -9.125, 14.563],[-3.548,  2.728,  6.140]]}
+    ]
+      const input = document.createElement('input')
+      input.type = 'file'
+      input.accept = '.las,.laz'; // Accept only .las or .laz files
+ 
+      input.onchange = (e) => {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const file = e.target?.files[0]
+        let fileURL,fileName,sceneParams: number[][]=[];
+        // Create a URL for the file
+        switch (file.name) {
+          case "WhiteBalance007_35I0WDOC.laz":
+            fileURL=lazArray[0].url;
+            fileName=lazArray[0].name;
+            sceneParams=lazArray[0].viewParams
+            break;
+          case "WhiteBalance004_35I0WD94.laz":
+            
+            fileURL=lazArray[1].url;
+            fileName=lazArray[1].name;
+            sceneParams=lazArray[1].viewParams;
+            break;
+          default:
+            break;
+        }
+        try{
+          console.log(file.name);
+          if(fileURL && fileName)
+          Potree.loadPointCloud(fileURL,fileName, (event)=>{
+          let scene = viewer.scene
+          let pointcloud = event.pointcloud
+          console.log(event);
+          
+          let material = pointcloud.material
+          material.size = 0.5
+          material.minSize = 2.0
+          material.pointSizeType = Potree.PointSizeType.ADAPTIVE
+          material.shape = Potree.PointShape.SQUARE
+          material.activeAttributeName = 'rgba'
+
+          scene.addPointCloud(pointcloud)
+
+          viewer.scene.view.setView(
+           sceneParams[0], sceneParams[1]
+          )
+          run()
+        })
+
+        }catch(error){
+          console.log(error);
+        }
+        
+      }
+      input.click()
+    })
+
+    const loadIFCButton = this.tabs.pages[0].addButton({
+      title: 'Load IFC'
+    })
+    loadIFCButton.on('click', () => {
+
       const input = document.createElement('input')
       input.type = 'file'
       input.onchange = (e) => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const file = e.target?.files[0]
-
-        const reader = new FileReader()
-        reader.readAsText(file, 'UTF-8')
-
-        reader.onload = async (readerEvent) => {
-          const content = readerEvent?.target?.result as string
-          const loader = new ObjLoader(this.viewer.getWorldTree(), file.name, content)
-          await this.viewer.loadObject(loader, true)
-        }
+        const file = e.target?.files[0];
+        createViewer('#renderer', getStream(file.name));
       }
+
       input.click()
     })
 

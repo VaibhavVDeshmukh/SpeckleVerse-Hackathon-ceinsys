@@ -20,7 +20,7 @@ import {
 import { SectionTool } from '@speckle/viewer'
 import { SectionOutlines } from '@speckle/viewer'
 
-const createViewer = async (containerName: string, stream: string) => {
+export const createViewer = async (containerName: string, stream: string) => {
   const container = document.querySelector<HTMLElement>(containerName)
 
   const controlsContainer = document.querySelector<HTMLElement>(
@@ -102,12 +102,22 @@ const createViewer = async (containerName: string, stream: string) => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const getStream = () => {
-  return (
+  export const getStream = (fileName: string) => {
+    switch (fileName) {
+      case "example.ifc":
+        return ('https://app.speckle.systems/projects/adea1d4716/models/3a268eef06');
+      case "example2.ifc":
+        return ('https://speckle.xyz/streams/638d3b1f83/commits/6025e2b546?c=%5B2.18058,-0.20814,9.67642,3.85491,5.05364,0,0,1%5D');
+    
+      default:
+        return ('');
+    }
+  // return (
+  
     // prettier-ignore
     // 'https://speckle.xyz/streams/da9e320dad/commits/5388ef24b8?c=%5B-7.66134,10.82932,6.41935,-0.07739,-13.88552,1.8697,0,1%5D'
     // Revit sample house (good for bim-like stuff with many display meshes)
-    'https://speckle.xyz/streams/da9e320dad/commits/5388ef24b8'
+    // 'https://speckle.xyz/streams/da9e320dad/commits/5388ef24b8'
     // 'https://latest.speckle.dev/streams/c1faab5c62/commits/ab1a1ab2b6'
     // 'https://speckle.xyz/streams/da9e320dad/commits/5388ef24b8'
     // 'https://latest.speckle.dev/streams/58b5648c4d/commits/60371ecb2d'
@@ -380,7 +390,7 @@ const getStream = () => {
     // 'https://speckle.xyz/streams/8f73d360e7/commits/2cb768cecd'
     // Shiny
     // 'https://latest.speckle.systems/projects/e8b81c24f5/models/759186b9ec'
-  )
+ // )
 }
 
 const container0 = document.querySelector<HTMLElement>('#renderer')
@@ -388,4 +398,4 @@ if (!container0) {
   throw new Error("Couldn't find app container!")
 }
 
-createViewer('#renderer', getStream())
+createViewer('#renderer', getStream("s"))
